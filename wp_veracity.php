@@ -3,9 +3,9 @@
 Plugin Name: WordPress Veracity
 Plugin URI: http://appfrica.org
 Description: This will enable ranking of your posts by popularity based on Bayesian algorithm; using the behavior of your visitors to determine each post's popularity. You set a value (or use the default value) for every post view, comment, etc. and the popularity of your posts is calculated based on those values. Once you have activated the plugin, you can configure the Popularity Values and View Reports. You can also use the included Widgets and Template Tags to display post popularity and lists of popular posts on your blog.
-Version: 2.0b2
-Author: Ivan Kavuma
-Author URI: http://appfrica.org
+Version: 1.0
+Author: Ivan Kavuma, Jon Gosier
+Author URI: http://swift.ushahidi.com
 
 */
 
@@ -68,7 +68,7 @@ function bttl_widget()
 		 }
 
 		//Commented statement is safer, but unnecessary because users can't affect these values. The subsequent statement is more compatible
-	        //foreach ($items as $item) $wpdb->insert($table_name,array('timestamp'=>$timestamp,'items'=>$item->ID));
+	    //foreach ($items as $item) $wpdb->insert($table_name,array('timestamp'=>$timestamp,'items'=>$item->ID));
 	        foreach ($items as $item) {$id = $item->ID;$wpdb->query("INSERT INTO $table_name (timestamp, items) VALUES ('$timestamp','$id')");}
 		$oldest = $wpdb->get_var('SELECT timestamp FROM '.$table_name.' ORDER BY timestamp ASC LIMIT 1');
 		$newest = $wpdb->get_var('SELECT timestamp FROM '.$table_name.' ORDER BY timestamp DESC LIMIT 1');
@@ -290,12 +290,12 @@ function bttl_widget()
 	
 	function init_bttl()
 	{
-		register_sidebar_widget(array('Bayesian Top Title Learner', 'widgets'), 'bttl_display');
+		register_sidebar_widget(array('Veracity', 'widgets'), 'bttl_display');
 	}
 	
 	// This registers our widget so it appears with the other available
-	register_sidebar_widget(array('Bayesian Top Title Learner', 'widgets'), 'bttl_display');
-	register_widget_control(array('Bayesian Top Title Learner', 'widgets'), 'bttl_control', 300, 100);
+	register_sidebar_widget(array('Veracity', 'widgets'), 'bttl_display');
+	register_widget_control(array('Veracity', 'widgets'), 'bttl_control', 300, 100);
 }
 
 
