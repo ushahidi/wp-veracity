@@ -2,10 +2,10 @@
 /*
 Plugin Name: WordPress Veracity
 Plugin URI: http://appfrica.org
-Description: This will enable ranking of your posts by popularity based on Bayesian algorithm; using the behavior of your visitors to determine each post's popularity. You set a value (or use the default value) for every post view, comment, etc. and the popularity of your posts is calculated based on those values. Once you have activated the plugin, you can configure the Popularity Values and View Reports. You can also use the included Widgets and Template Tags to display post popularity and lists of popular posts on your blog.
+Description: This will enable ranking of your posts by popularity based on Bayesian algorithm; using the behavior of your visitors to determine each post's popularity. You set a value (or use the default value) for every post view, comment, etc. and the popularity of your posts is calculated based on those values. Once you have activated the plugin, you can configure the Popularity Values and View Reports. You can also use the included Widgets and Template Tags to display post popularity and lists of popular posts on your blog.  This plug-in borrows code from and is a mashup of Popularity Contest from Crowd Favorite (http://crowdfavorite.com/wordpress/plugins/popularity-contest/) and Bayesian Top Title Learner (http://wordpress.org/extend/plugins/bayesian-top-title-learner/).
 Version: 1.0
 Author: Ivan Kavuma, Jon Gosier
-Author URI: http://swift.ushahidi.com
+Author URI: http://appfrica.org
 
 */
 
@@ -68,7 +68,7 @@ function bttl_widget()
 		 }
 
 		//Commented statement is safer, but unnecessary because users can't affect these values. The subsequent statement is more compatible
-	    //foreach ($items as $item) $wpdb->insert($table_name,array('timestamp'=>$timestamp,'items'=>$item->ID));
+	        //foreach ($items as $item) $wpdb->insert($table_name,array('timestamp'=>$timestamp,'items'=>$item->ID));
 	        foreach ($items as $item) {$id = $item->ID;$wpdb->query("INSERT INTO $table_name (timestamp, items) VALUES ('$timestamp','$id')");}
 		$oldest = $wpdb->get_var('SELECT timestamp FROM '.$table_name.' ORDER BY timestamp ASC LIMIT 1');
 		$newest = $wpdb->get_var('SELECT timestamp FROM '.$table_name.' ORDER BY timestamp DESC LIMIT 1');
@@ -290,12 +290,12 @@ function bttl_widget()
 	
 	function init_bttl()
 	{
-		register_sidebar_widget(array('Veracity', 'widgets'), 'bttl_display');
+		//register_sidebar_widget(array('Bayesian Top Title Learner', 'widgets'), 'bttl_display');
 	}
 	
 	// This registers our widget so it appears with the other available
-	register_sidebar_widget(array('Veracity', 'widgets'), 'bttl_display');
-	register_widget_control(array('Veracity', 'widgets'), 'bttl_control', 300, 100);
+	//register_sidebar_widget(array('Bayesian Top Title Learner', 'widgets'), 'bttl_display');
+	//register_widget_control(array('Bayesian Top Title Learner', 'widgets'), 'bttl_control', 300, 100);
 }
 
 
@@ -1742,7 +1742,7 @@ class ak_popularity_contest {
 					if (is_array($items) && count($items)) {
 						foreach ($items as $item) {
 							$list .= '	<li>
-									<span>'.$this->get_post_rank(null, $item->total).'</span>
+									<span>'.$this->get_post_rank(null,$this->get_Bayesian_score($item->ID)).'</span>
 									<a href="'.get_permalink($item->ID).'">'.$item->post_title.'</a>
 								</li>'."\n";
 						}
@@ -1777,8 +1777,9 @@ class ak_popularity_contest {
 
 		$html = '';
 		foreach($items as $item) {
-			$html .= $before.
-					 '<span>'.$this->get_post_rank(null, $item->total).'</span><a href="'.get_permalink($item->ID).'">'.$item->post_title.'</a>'.
+                  // $score = $this->get_Bayesian_score($item->post_id);
+                    $html .= $before.
+					 '<span>'.$this->get_post_rank(null, $this->get_Bayesian_score($item->ID)).'</span><a href="'.get_permalink($item->ID).'">'.$item->post_title.'</a>'.
 					 $after;
 		}
 		return $html;
@@ -1831,10 +1832,11 @@ class ak_popularity_contest {
 		<tr class='<?php echo $class; ?>'>
 <?php
 				foreach($columns as $column_name => $column_display_name) {
+                                      $score = $this->get_Bayesian_score($post_id);
 					switch($column_name) {
 						case 'popularity':
 ?>
-				<td class="right"><?php $this->show_post_rank(null, $post->total); ?></td>
+				<td class="right"><?php $this->show_post_rank(null, $score ); ?></td>
 <?php
 						break;
 						case 'title':
@@ -2098,7 +2100,8 @@ jQuery(window).bind('resize', akpc_flow_reports);
 		if (!isset($this->current_posts['id_'.$post_id])) {
 			$this->get_current_posts(array($post_id));
 		}
-		return $this->current_posts['id_'.$post_id];
+                return $this->get_Bayesian_score($post_id);
+		//return $this->current_posts['id_'.$post_id];
 	}
 
 	function get_rank($item, $total = null) {
@@ -2154,6 +2157,15 @@ jQuery(window).bind('resize', akpc_flow_reports);
 		}
 		return $top;
 	}
+        function get_Bayesian_score($post_id)
+        {
+           // bttl_display(array());
+            $ab=get_post_meta($post_id,"interest",TRUE);
+            $score =  round(expect($ab),2);
+            return $score;
+        }
+
+       // function get_
 
 	function get_current_posts($post_ids = array()) {
 		global $wpdb, $wp_query;
@@ -2172,14 +2184,13 @@ jQuery(window).bind('resize', akpc_flow_reports);
 
 			if (count($result)) {
 				foreach ($result as $data) {
-                                        $ab=get_post_meta($data->post_id,"interest",TRUE);
-                                        $score =  round(expect($ab),2);
-					$this->current_posts['id_'.$data->post_id] = $score*1000;
+                                    $this->current_posts['id_'.$data->post_id] = $this->get_Bayesian_score($data->post_id);
 				}
 			}
 		}
 		return true;
 	}
+
 
 
 	function get_top_ranked() {
@@ -2197,10 +2208,7 @@ jQuery(window).bind('resize', akpc_flow_reports);
 			return false;
 		}
 		foreach ($result as $data) {
-
-                    $ab=get_post_meta($data->post_id,"interest",TRUE);
-                    $score =  round(expect($ab),2);
-			$this->top_ranked['id_'.$data->post_id] = $score*1000 ;//$data->total;
+			$this->top_ranked['id_'.$data->post_id] = $this->get_Bayesian_score($data->post_id);
 		}
 
 		return true;
@@ -2615,7 +2623,7 @@ function akpc_widget_init() {
 
 	// base set of options for widget type
 	$base_options = array('classname' => 'akpc-widget', 'description' => __('Show popular posts as ranked by Popularity Contest', 'popularity-contest'));
-	$widget_name = __('Popularity Contest', 'popularity-contest');
+	$widget_name = __('Wp Veracity', 'popularity-contest');
 
 	// register widgets & controls for each existing widget
 	foreach($options as $number => $option) {
