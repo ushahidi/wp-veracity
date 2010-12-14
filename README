@@ -1,8 +1,8 @@
 =================
-WP-Veracity v1.0
+WP-Veracity v1.5
 =================
 
-WP-Veracity rates your Wordpress posts by applying bayesian algorithms to post popularity and influence.
+WP-Veracity rates Wordpress posts by applying bayesian algorithms to content popularity and influence.
 
 WP-Veracity helps surface the more recent and interesting content on your blog, rather than simply the most popular post.  This plug-in is a mashup of Popularity Contest from Crowd Favorite (http://crowdfavorite.com/wordpress/plugins/popularity-contest/) and Bayesian Top Title Learner (http://wordpress.org/extend/plugins/bayesian-top-title-learner/).
 
@@ -15,15 +15,14 @@ Issue Tracker - http://github.com/ushahidi/wp-veracity/issues
 PROJECT CONTRIBUTORS
 ======================
 
-Ivan Kavuma (WP-SiLCC Developer) - kavuma.ivan@appfrica.org
-Jon Gosier (SwiftRiver Director) - jon@ushahidi.com
+Jon Gosier  - jg@swiftly.org
+Ahmed Maawy - am@swiftly.org
 
 ====================
 SYSTEM REQUIREMENTS
 ====================
 
-Requires Wordpress Version 2.0
-Tested up to Version 1.0
+Requires Wordpress Version 2.x or above
 
 ====================
 INSTALLATION
@@ -37,4 +36,4 @@ INSTALLATION
 CONTACT
 ===========
 
-jon@ushahidi.com
+jg@swiftly.org

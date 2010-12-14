@@ -6,7 +6,6 @@ Description: This will enable ranking of your posts by popularity based on Bayes
 Version: 1.0
 Author: Ivan Kavuma, Jon Gosier
 Author URI: http://appfrica.org
-
 */
 
 $interest = 'interest';//meta data tags for wp
@@ -3155,5 +3154,39 @@ add_action('delete_comment', 'akpc_comment_delete');
 add_action('plugins_loaded','akpc_widget_init');
 
 endif; // LOADED CHECK
+
+// Score by age
+
+add_filter('the_content', 'score_by_age');
+
+function score_by_age($str) {
+    global $age_score, $post, $wpdb;
+    $post_id = $post->ID;
+
+    $blog = $wpdb->get_row("SELECT UNIX_TIMESTAMP(post_date) AS post_date FROM $wpdb->posts WHERE ID = '".$post_id."' ");
+
+    if(!$blog) {
+        return null;
+    }
+
+    $blog_timestamp = $blog->post_date;
+    $current_timestamp = time();
+
+    $hour_diff = floor(($current_timestamp - $blog_timestamp)/3600);
+
+    if($hour_diff < 24) {
+        $age_score = "Low";
+    }
+    else if($hour_diff >= 24 && $hour_diff < 72) {
+        $age_score = "Medium";
+    }
+    else if($hour_diff >= 72) {
+        $age_score = "High";
+    }
+
+    $str.="Weight: ".$age_score."<br/>";
+
+    return $str;
+}
 
 ?>
